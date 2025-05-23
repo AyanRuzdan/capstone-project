@@ -34,7 +34,7 @@ response = requests.post(API_URL, params=params, headers=headers, json=data)
 
 if response.status_code == 200:
     result = response.json()
-    print("Response:", result)
+    print("Response:", result['candidates'][0]['content']['parts'][0]['text'])
 else:
     print(
         f"Request failed with status code {response.status_code}: {response.text}")

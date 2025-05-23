@@ -11,20 +11,17 @@ from sklearn.metrics import silhouette_score, davies_bouldin_score
 from nltk.corpus import stopwords
 import pandas as pd
 
-# Ensure data directory exists
 os.makedirs("./data", exist_ok=True)
 
-# Download stopwords if not already present
-# nltk.download('stopwords')
+nltk.download('stopwords')
 stop_words = set(stopwords.words('english'))
 
-# Custom stopwords to remove generic news terms
 custom_stopwords = set([
     "said", "also", "new", "one", "two", "first", "last", "many", "could", "would", "get",
     "news", "report", "study", "researchers", "research", "according", "year", "years"
 ])
 
-# Load JSONL data
+
 def load_jsonl(file_path):
     articles = []
     with open(file_path, 'r') as file:
@@ -32,22 +29,22 @@ def load_jsonl(file_path):
             articles.append(json.loads(line))
     return articles
 
-# Extract the 'text' field from each article
+
 def extract_text(articles):
     return [article['text'] for article in articles]
 
-# Create embeddings for the text using SentenceTransformer
+
 def create_embeddings(texts):
-    model = SentenceTransformer("all-MiniLM-L12-v2")
+    model = SentenceTransformer("all-MiniLM-L12-v2", device='cpu')
     return model.encode(texts)
 
-# Perform KMeans clustering
+
 def perform_clustering(embeddings, num_clusters=12):
     kmeans = KMeans(n_clusters=num_clusters, random_state=42)
     kmeans.fit(embeddings)
     return kmeans
 
-# Elbow method to determine optimal number of clusters
+
 def plot_elbow(embeddings, max_k=10, save_path='./data/elbow_plot.png'):
     distortions = []
     for k in range(1, max_k + 1):
@@ -64,7 +61,7 @@ def plot_elbow(embeddings, max_k=10, save_path='./data/elbow_plot.png'):
     plt.savefig(save_path)
     plt.close()
 
-# Extract keywords to label clusters
+
 def extract_keywords(texts, cluster_labels, n_keywords=5):
     cluster_keywords = {}
     for cluster in set(cluster_labels):
@@ -81,7 +78,7 @@ def extract_keywords(texts, cluster_labels, n_keywords=5):
         cluster_keywords[cluster] = [word for word, _ in common_words]
     return cluster_keywords
 
-# Visualize clusters in 2D space using PCA and annotate with keywords
+
 def plot_clusters_with_labels(embeddings, kmeans, cluster_keywords, save_path="./data/cluster_plot.png"):
     pca = PCA(n_components=2)
     reduced_embeddings = pca.fit_transform(embeddings)
@@ -99,7 +96,8 @@ def plot_clusters_with_labels(embeddings, kmeans, cluster_keywords, save_path=".
     for i, coords in enumerate(centroids_2d):
         keywords_list = cluster_keywords.get(i, [])
         half = len(keywords_list) // 2 or 1
-        keywords = ", ".join(keywords_list[:half]) + "\n" + ", ".join(keywords_list[half:])
+        keywords = ", ".join(
+            keywords_list[:half]) + "\n" + ", ".join(keywords_list[half:])
         plt.text(
             coords[0], coords[1], keywords,
             fontsize=10, weight='bold',
@@ -115,7 +113,7 @@ def plot_clusters_with_labels(embeddings, kmeans, cluster_keywords, save_path=".
     plt.savefig(save_path)
     plt.show()
 
-# Save cluster assignments and metrics to CSV
+
 def save_cluster_data_for_analysis(articles, kmeans, cluster_keywords, silhouette_avg, db_index, save_path="./data/cluster_assignments.csv"):
     data = []
     for i, article in enumerate(articles):
@@ -136,6 +134,8 @@ def save_cluster_data_for_analysis(articles, kmeans, cluster_keywords, silhouett
     print(f"Cluster data saved to {save_path}")
 
 # Main workflow
+
+
 def main():
     # Load and process data
     articles = load_jsonl('./data/scraped_articles.jsonl')
@@ -149,7 +149,8 @@ def main():
     kmeans = perform_clustering(embeddings, num_clusters=5)
 
     # Calculate clustering metrics
-    silhouette_avg = silhouette_score(embeddings, kmeans.labels_, metric='euclidean')
+    silhouette_avg = silhouette_score(
+        embeddings, kmeans.labels_, metric='euclidean')
     print(f"Silhouette Score: {silhouette_avg:.2f}")
     db_index = davies_bouldin_score(embeddings, kmeans.labels_)
     print(f"Davies-Bouldin Index: {db_index:.2f}")
@@ -170,6 +171,7 @@ def main():
         cluster = kmeans.labels_[i]
         keywords = ', '.join(cluster_keywords[cluster])
         print(f"Article {i+1:04}: Cluster {cluster} Keywords: {keywords}")
+
 
 # Run the script
 if __name__ == '__main__':

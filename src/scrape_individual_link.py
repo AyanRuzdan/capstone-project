@@ -43,11 +43,9 @@ def scrape_ht_science(max_pages=50):
     return articles
 
 
-# Scrape data
 data = scrape_ht_science(max_pages=50)
 
-# Save to JSON
-with open("./capstone/data/ht_science_articles.json", "w", encoding="utf-8") as f:
+with open("./data/ht_science_articles.json", "w", encoding="utf-8") as f:
     json.dump(data, f, ensure_ascii=False, indent=2)
 
 print(

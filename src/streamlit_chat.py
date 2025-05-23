@@ -103,12 +103,12 @@ if tab == "News ChatBot":
         st.session_state.messages.append(
             {"role": "assistant", "content": response})
 elif tab == "Fetch news links":
-    st.header("🔬 Science News Scraper")
+    st.header("Science News Scraper")
 
     # Check and display the JSON content first if available
     json_path = "data/ht_science_articles.json"
     if os.path.exists(json_path):
-        st.subheader("📄 Scraped Articles (JSON Preview)")
+        st.subheader("Scraped Articles (JSON Preview)")
         try:
             with open(json_path, "r", encoding="utf-8") as f:
                 data = json.load(f)
@@ -117,7 +117,7 @@ elif tab == "Fetch news links":
                     st.write(f"Total Articles: {len(data)}")
                     st.json(data[:10])  # Show only top 10 articles
                     st.download_button(
-                        label="📥 Download full JSON",
+                        label="Download full JSON",
                         data=json.dumps(data, indent=2),
                         file_name="ht_science_articles.json",
                         mime="application/json"
@@ -127,74 +127,70 @@ elif tab == "Fetch news links":
                         "The file exists but doesn't contain valid article data.")
         except json.JSONDecodeError:
             st.error(
-                "❌ Could not parse the file as JSON. It may be corrupted or contain HTML.")
+                "Could not parse the file as JSON. It may be corrupted or contain HTML.")
     else:
         st.info("No JSON file found yet. Click the button below to fetch articles.")
 
     # Now show the fetch button (run only on click)
-    if st.button("🔄 Fetch all links"):
+    if st.button("Fetch all links"):
         with st.spinner("Scraping science articles... please wait."):
             result = subprocess.run(
                 ["python", "src/scrape_individual_link.py"], capture_output=True, text=True)
 
             if result.returncode == 0:
-                st.success("✅ Scraping complete!")
+                st.success("Scraping complete!")
                 st.text(result.stdout)
             else:
-                st.error("❌ Error occurred during scraping.")
+                st.error("Error occurred during scraping.")
                 st.text(result.stderr)
 
 elif tab == "Fetch news content":
-    st.header("📰 Fetch News Content")
+    st.header("Fetch News Content")
     json_path = "data/scraped_articles.jsonl"
 
-    # Show preview first
     if os.path.exists(json_path):
-        st.subheader("📄 Scraped Articles (JSONL Preview)")
+        st.subheader("Scraped Articles (JSONL Preview)")
         try:
             with open(json_path, "r", encoding="utf-8") as f:
                 for line in f:
                     st.json(json.loads(line))
-                    break  # show only the first article
+                    break
             with open(json_path, "r", encoding="utf-8") as f:
                 total_lines = sum(1 for _ in f)
             st.caption(f"Total articles: {total_lines}")
         except json.JSONDecodeError:
             st.error(
-                "❌ Could not parse the file as JSON. It may be corrupted or contain HTML.")
+                "Could not parse the file as JSON. It may be corrupted or contain HTML.")
     else:
         st.info("No JSONL file found yet. Click the button below to fetch articles.")
 
-    # Trigger the script when button is clicked
-    if st.button("🔄 Fetch all content"):
+    if st.button("Fetch all content"):
         with st.spinner("Fetching article content... please wait."):
             result = subprocess.run(
                 ["python", "src/scrape_content.py"], capture_output=True, text=True)
 
             if result.returncode == 0:
-                st.success("✅ Content fetching complete!")
+                st.success("Content fetching complete!")
                 st.text(result.stdout)
             else:
-                st.error("❌ Error occurred during content fetching.")
+                st.error("Error occurred during content fetching.")
                 st.text(result.stderr)
 
 elif tab == "Perform Clustering":
-    st.header("📊 Perform Article Clustering")
+    st.header("Perform Article Clustering")
 
     plot_path = "data/cluster_plot.png"
 
     # Show plot if already generated
     if os.path.exists(plot_path):
-        st.subheader("🖼️ Latest Clustering Plot")
+        st.subheader("Latest Clustering Plot")
         with open(plot_path, "rb") as f:
             img_bytes = f.read()
-        st.image(img_bytes, caption="Clustering Visualization",
-                 width=1100)
+        st.image(img_bytes, caption="Clustering Visualization", width=1100)
     else:
         st.info("No clustering plot found yet. Run clustering to generate one.")
 
-    # Run clustering script when button is clicked
-    if st.button("🚀 Run Clustering"):
+    if st.button("Run Clustering"):
         with st.spinner("Clustering articles... please wait."):
             result = subprocess.run(
                 ["python", "src/clustering.py"],
@@ -203,10 +199,9 @@ elif tab == "Perform Clustering":
             )
 
             if result.returncode == 0:
-                st.success("✅ Clustering complete!")
+                st.success("Clustering complete!")
                 st.text(result.stdout)
 
-                # Force reload the image after clustering
                 if os.path.exists(plot_path):
                     with open(plot_path, "rb") as f:
                         img_bytes = f.read()
@@ -215,13 +210,12 @@ elif tab == "Perform Clustering":
                 else:
                     st.warning("Clustering finished, but no plot was found.")
             else:
-                st.error("❌ Clustering failed.")
+                st.error("Clustering failed.")
                 st.text(result.stderr)
 elif tab == "Temporal Trend":
-    st.header("📈 Temporal Trend of Clusters")
+    st.header("Temporal Trend of Clusters")
 
-    # Button to run the trend analysis script
-    if st.button("📊 Run Temporal Trend Analysis"):
+    if st.button("Run Temporal Trend Analysis"):
         with st.spinner("Generating temporal trend plots... please wait."):
             result = subprocess.run(
                 ["python", "src/temporal_trend.py"],
@@ -230,10 +224,10 @@ elif tab == "Temporal Trend":
             )
 
             if result.returncode == 0:
-                st.success("✅ Temporal trend analysis complete!")
+                st.success("Temporal trend analysis complete!")
                 st.text(result.stdout)
             else:
-                st.error("❌ Error occurred during trend analysis.")
+                st.error("Error occurred during trend analysis.")
                 st.text(result.stderr)
 
     # Show image carousel
@@ -245,7 +239,7 @@ elif tab == "Temporal Trend":
         )
 
         if plot_files:
-            st.subheader("🖼️ Cluster-wise Temporal Trend Carousel")
+            st.subheader("Cluster-wise Temporal Trend Carousel")
 
             # Create a slider to pick which plot to display
             selected = st.slider("Select Cluster Plot",
