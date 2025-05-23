@@ -133,46 +133,28 @@ def save_cluster_data_for_analysis(articles, kmeans, cluster_keywords, silhouett
     df.to_csv(save_path, index=False)
     print(f"Cluster data saved to {save_path}")
 
-# Main workflow
-
 
 def main():
-    # Load and process data
     articles = load_jsonl('./data/scraped_articles.jsonl')
     texts = extract_text(articles)
     embeddings = create_embeddings(texts)
-
-    # Generate elbow plot
     plot_elbow(embeddings, max_k=12, save_path='./data/elbow_plot.png')
-
-    # Perform clustering
     kmeans = perform_clustering(embeddings, num_clusters=5)
-
-    # Calculate clustering metrics
     silhouette_avg = silhouette_score(
         embeddings, kmeans.labels_, metric='euclidean')
     print(f"Silhouette Score: {silhouette_avg:.2f}")
     db_index = davies_bouldin_score(embeddings, kmeans.labels_)
     print(f"Davies-Bouldin Index: {db_index:.2f}")
-
-    # Extract top keywords per cluster
     cluster_keywords = extract_keywords(texts, kmeans.labels_, n_keywords=5)
-
-    # Plot labeled clusters
     plot_clusters_with_labels(
         embeddings, kmeans, cluster_keywords, save_path='./data/cluster_plot.png')
-
-    # Save cluster data with metrics
     save_cluster_data_for_analysis(
         articles, kmeans, cluster_keywords, silhouette_avg, db_index, save_path='./data/cluster_assignments.csv')
-
-    # Print cluster assignment with keywords
     for i, article in enumerate(articles):
         cluster = kmeans.labels_[i]
         keywords = ', '.join(cluster_keywords[cluster])
         print(f"Article {i+1:04}: Cluster {cluster} Keywords: {keywords}")
 
 
-# Run the script
 if __name__ == '__main__':
     main()

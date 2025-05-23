@@ -4,11 +4,9 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 from collections import Counter
 
-# Ensure output directory exists
 output_dir = './data/plots'
 os.makedirs(output_dir, exist_ok=True)
 
-# Load and prepare data
 df = pd.read_csv('./data/cluster_assignments.csv')
 df['date'] = pd.to_datetime(df['date'])
 df['date_only'] = df['date'].dt.date
@@ -16,7 +14,6 @@ df['keywords'] = df['keywords'].fillna('')
 df['keyword_list'] = df['keywords'].apply(
     lambda x: [kw.strip() for kw in x.split(',') if kw.strip()])
 
-# --- Plot 1: Cluster Trends Over Time ---
 cluster_counts_by_date = df.groupby(
     ['date_only', 'cluster']).size().unstack(fill_value=0)
 
@@ -26,23 +23,18 @@ plt.title("Temporal Trend of Cluster Assignments Over Time")
 plt.xlabel("Date")
 plt.ylabel("Number of Articles in Each Cluster")
 
-# Adjust x-axis ticks to reduce clutter
-ax.xaxis.set_major_locator(mdates.WeekdayLocator(interval=2))  # Set interval for ticks
-ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))  # Format as 'YYYY-MM-DD'
+ax.xaxis.set_major_locator(mdates.WeekdayLocator(interval=2))
+ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
 
-# Reduce x-tick frequency by setting tick positions explicitly
 ticks = ax.get_xticks()
-# Only display every 1 out of 3 ticks (about 70% of the time)
 ax.set_xticks(ticks[::3])
 
-# Rotate and adjust the x-ticks
-plt.xticks(rotation=45, fontsize=8)  # Reduce font size for better fit
+plt.xticks(rotation=45, fontsize=8)
 plt.grid(True)
 plt.tight_layout()
 plt.savefig(f"{output_dir}/cluster_trends_over_time.png")
 plt.close()
 
-# --- Plot 2: Keyword Trends for Each Cluster ---
 keyword_trends = {}
 for cluster in sorted(df['cluster'].unique()):
     cluster_df = df[df['cluster'] == cluster]
@@ -54,7 +46,6 @@ for cluster in sorted(df['cluster'].unique()):
         keyword_counts_by_date.tolist(), index=keywords_by_date.index).fillna(0)
     keyword_trends[cluster] = keyword_counts_df
 
-    # --- Plot top keywords for current cluster ---
     keyword_df = keyword_counts_df.sort_index()
     top_keywords = keyword_df.sum().nlargest(5).index
     filtered_df = keyword_df[top_keywords]
@@ -69,15 +60,13 @@ for cluster in sorted(df['cluster'].unique()):
     plt.xlabel("Date")
     plt.ylabel("Keyword Frequency")
 
-    # Adjust x-axis ticks to reduce clutter
-    plt.gca().xaxis.set_major_locator(mdates.WeekdayLocator(interval=2))  # Set interval for ticks
-    plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))  # Format as 'YYYY-MM-DD'
+    plt.gca().xaxis.set_major_locator(mdates.WeekdayLocator(interval=2))
+    plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
 
-    # Reduce x-tick frequency by setting tick positions explicitly
     ticks = plt.gca().get_xticks()
-    plt.gca().set_xticks(ticks[::3])  # Only display every 1 out of 3 ticks (about 70% of the time)
+    plt.gca().set_xticks(ticks[::3])
 
-    plt.xticks(rotation=45, fontsize=8)  # Reduce font size for better fit
+    plt.xticks(rotation=45, fontsize=8)
     plt.grid(True)
     plt.legend(title="Keywords", bbox_to_anchor=(1.02, 1), loc='upper left')
     plt.tight_layout()

@@ -59,8 +59,7 @@ def extract_and_save(json_file, output_file="data/scraped_articles.jsonl"):
             else:
                 print(f"[SKIPPED] No content for {url}")
 
-    print(f"\n✅ Done. {saved_articles} articles saved to '{output_file}'.")
+    print(f"\nDone. {saved_articles} articles saved to '{output_file}'.")
 
 
-# Run it
 extract_and_save("data/ht_science_articles.json")

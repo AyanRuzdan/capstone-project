@@ -105,7 +105,6 @@ if tab == "News ChatBot":
 elif tab == "Fetch news links":
     st.header("Science News Scraper")
 
-    # Check and display the JSON content first if available
     json_path = "data/ht_science_articles.json"
     if os.path.exists(json_path):
         st.subheader("Scraped Articles (JSON Preview)")
@@ -131,7 +130,6 @@ elif tab == "Fetch news links":
     else:
         st.info("No JSON file found yet. Click the button below to fetch articles.")
 
-    # Now show the fetch button (run only on click)
     if st.button("Fetch all links"):
         with st.spinner("Scraping science articles... please wait."):
             result = subprocess.run(
@@ -230,7 +228,6 @@ elif tab == "Temporal Trend":
                 st.error("Error occurred during trend analysis.")
                 st.text(result.stderr)
 
-    # Show image carousel
     plot_dir = "data/plots"
     if os.path.exists(plot_dir):
         plot_files = sorted(
@@ -241,7 +238,6 @@ elif tab == "Temporal Trend":
         if plot_files:
             st.subheader("Cluster-wise Temporal Trend Carousel")
 
-            # Create a slider to pick which plot to display
             selected = st.slider("Select Cluster Plot",
                                  0, len(plot_files)-1, 0)
             selected_plot = plot_files[selected]
