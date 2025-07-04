@@ -1,4 +1,4 @@
-from PIL import Image  # Optional, helps ensure fresh image is loaded
+from PIL import Image
 import streamlit as st
 import requests
 import os
@@ -19,6 +19,7 @@ def search_web(query):
     }
     search = GoogleSearch(params)
     results = search.get_dict()
+    print("RESULTS", results['organic_results'])
     return results.get("organic_results", [])
 
 
